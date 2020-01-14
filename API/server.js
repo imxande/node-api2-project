@@ -4,7 +4,12 @@ const express = require('express');
 // create a server with express
 const server = express();
 
-// i still need a route variable
+// route variable
+const postRouter = require('../routes/routes.js')
+
+// default post route (remember base url dummie)
+server.use('/api/posts', postRouter);
+
 
 // teach express how to use json
 server.use(express.json());
@@ -14,6 +19,7 @@ server.get('/', (req, res) =>{
     res.send("Hello from express")
 })
 
+// export server
 module.exports = server;
 
 
