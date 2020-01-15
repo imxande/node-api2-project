@@ -77,9 +77,39 @@ router.get('/:id', (req, res) => {
     .catch(err => {
         res.status(500).json({message: 'Error finding post'})
     })
-})             
+}) 
 
+//  Returns an array of all the comment objects associated with the post with the specified id.                          
+router.get('/:id/comments', (req, res) => {
+    DataBase.findCommentById(req.params.id)
+    .then(response => {
+        console.log(hub)
+        if(response.length === 0){
+            res.status(404).json({message: 'Post not found'})
+        }else{
+            res.status(200).json(response)
+        }
+    })
+    .catch(err => {
+        res.status(500).json({message: 'Error finding comment'})
+    })
+})
 
+//  Removes the post with the specified id and returns the **deleted post object**. You may need to make additional calls to the database in order to satisfy this requirement.
+router.delete('/:id', (req, res) => {
+    DataBase.remove(req.params.id)
+    .then(response => {
+        console.log(response)
+        if(response === 0){
+            res.status(404).json({ message: "The post with the specified ID does not exist." })
+        }else{
+            res.status(200).json({message: 'Post deleted'})
+        }
+    })
+    .catch(err=> {
+        res.status(500).json({ error: "The post could not be removed" })
+    })
+})
 
 
 
