@@ -13,6 +13,7 @@ const router = express.Router();
 //     res.send('My life for Aiur')
 // })
 
+// this works 1
 // Creates a post using the information sent inside the request body.
 router.post('/', (req, res)=>{
 
@@ -20,12 +21,13 @@ router.post('/', (req, res)=>{
     if(!req.body.title || !req.body.contents){
       return  res.status(400).json(`{ errorMessage: "Please provide title and contents for the post." }`)
     }
-    
+
     // if everything pass then we insert
     DataBase.insert(req.body)
         .then(response =>{
                 // create was successful
                 res.status(201).json(response)
+                // {...req.body, id:response}
             
         })
         .catch(error =>{
@@ -34,31 +36,9 @@ router.post('/', (req, res)=>{
         })
 })
 
-// Creates a comment for the post with the specified id using information sent inside of the `request body`.  
-router.post('/:id/comments', (req, res) =>{
-    DataBase.insertComment(req.body)
-        .then(response =>{
-            if(response.length === 0){
-                // if id not found return a 404(Not Found)
-                res.status(404).json({ message: "The post with the specified ID does not exist." })
-            }
-            // in case text is missing do a 400 (Bad Request)
-            else if(!req.body.text){
-                res.status(400).json(`{ errorMessage: "Please provide text for the comment." }`)
-            }
-            else{
-                res.status(201).json(response)
-            }
-        })
-        .catch(error =>{
-            console.log(error)
-            res.status(500).json(`{ error: "There was an error while saving the post to the database" }`)
-       
-        })  
-})  
-
+// this works 2
 //Returns an array of all the post objects contained in the database.
-router.get('/', (req,rest) => {
+router.get('/', (req,res) => {
     DataBase.find()
     .then(response => {
         res.status(200).json(response);
@@ -68,17 +48,52 @@ router.get('/', (req,rest) => {
     })
 })
 
+//  this is not working 3
+// Creates a comment for the post with the specified id using information sent inside of the `request body`.  
+router.post('/:id/comments', (req, res) =>{
+
+    // i need to check if the post with that id is not found
+    if(!req.body.id){
+        // return a 404 status(not found)
+        return res.status(404).json({ message: "The post with the specified ID does not exist." })
+
+    }
+
+    // i need to add comments to the data base
+    const comment = req.body
+
+    // if there is no text then return an error message and cancel request
+    if (!comment){
+       return  res.status(400).json(`{ errorMessage: "Please provide text for the comment." }`)
+    }
+
+    // if everything pass then comment is added to the specify id
+    DataBase.insertComment(comment)
+        .then(response =>{
+            res.status(201).json(req.body)
+        })
+
+        // in case of an error while saving the comment
+        .catch(error =>{
+            console.log(error)
+            res.status(500).json(`{ error: "There was an error while saving the post to the database" }`)
+        })  
+})  
+
 // Returns the post object with the specified id. 
 router.get('/:id', (req, res) => {
+
+     // i need to check if the post with that id is not found
+     if(!req.body.id){
+        // return a 404 status(not found)
+        return res.status(404).json({ message: "The post with the specified ID does not exist." })
+    }
     DataBase.findById(req.params.id)
+    
     .then(response => {
-        if(response.length === 0){
-            res.status(404).json({message: 'Post not found'})
-        }else{
             res.status(200).json(response);
-        }
     })
-    .catch(err => {
+    .catch(error => {
         res.status(500).json({message: 'Error finding post'})
     })
 }) 
@@ -99,6 +114,7 @@ router.get('/:id/comments', (req, res) => {
     })
 })
 
+// this works
 //  Removes the post with the specified id and returns the **deleted post object**. You may need to make additional calls to the database in order to satisfy this requirement.
 router.delete('/:id', (req, res) => {
     DataBase.remove(req.params.id)
@@ -115,19 +131,23 @@ router.delete('/:id', (req, res) => {
     })
 })
 
+// this works
 // Updates the post with the specified `id` using data from the `request body`. Returns the modified document, **NOT the original**.                                    
 router.put('/:id', (req, res) => {
+     if(!req.body.title || !req.body.contents){
+        res.status(400).json({ errorMessage: "Please provide title or content for the post." })
+    }
+   
     DataBase.update(req.params.id, req.body)
     .then(response => {
-        if(response.length === 0){
-            res.status(404).json({ message: "The post with the specified ID does not exist." })
-        }else if(req.body.title === ''){
-            res.status(400).json({ errorMessage: "Please provide title for the post." })
-        }else if(req.body.contents === ''){
-            res.status(400).json({ errorMessage: "Please provide contents for the post." })            
-        }else{
-            res.status(200).json(response)
+        if(response){
+            return res.status(200).json(req.body)
         }
+
+        else{
+            res.status(404).json({mesage:'Not updated'})
+        }
+           
     })
     .catch(err => {
         res.status(500).json({ error: "The post information could not be modified." })
