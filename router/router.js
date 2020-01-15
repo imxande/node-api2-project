@@ -64,6 +64,21 @@ router.get('/', (req,rest) => {
     })
 })
 
+// Returns the post object with the specified id. 
+router.get('/:id', (req, res) => {
+    DataBase.findById(req.params.id)
+    .then(response => {
+        if(response.length === 0){
+            res.status(404).json({message: 'Post not found'})
+        }else{
+            res.status(200).json(response);
+        }
+    })
+    .catch(err => {
+        res.status(500).json({message: 'Error finding post'})
+    })
+})             
+
 
 
 
