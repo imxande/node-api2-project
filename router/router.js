@@ -30,6 +30,23 @@ router.post('/', (req, res)=>{
         })
 })
 
+// Creates a comment for the post with the specified id using information sent inside of the `request body`.  
+router.post('/:id/comments', (req, res) =>{
+    DataBase.insertComment(req.body)
+        .then(response =>{
+            if(response.length === 0){
+                // if id not found return a 404(Not Found)
+                res.status(404).json({ message: "The post with the specified ID does not exist." })
+            }
+        })
+        .catch(error =>{
+            console.log(error)
+            res.status(500).json(`{ error: "There was an error while saving the post to the database" }`)
+       
+        })
+    
+})  
+
 
 
 module.exports = router;
