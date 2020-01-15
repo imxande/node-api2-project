@@ -111,6 +111,23 @@ router.delete('/:id', (req, res) => {
     })
 })
 
-
+// Updates the post with the specified `id` using data from the `request body`. Returns the modified document, **NOT the original**.                                    
+router.put('/:id', (req, res) => {
+    DataBase.update(req.params.id, req.body)
+    .then(response => {
+        if(response.length === 0){
+            res.status(404).json({ message: "The post with the specified ID does not exist." })
+        }else if(req.body.title === ''){
+            res.status(400).json({ errorMessage: "Please provide title for the post." })
+        }else if(req.body.contents === ''){
+            res.status(400).json({ errorMessage: "Please provide contents for the post." })            
+        }else{
+            res.status(200).json(response)
+        }
+    })
+    .catch(err => {
+        res.status(500).json({ error: "The post information could not be modified." })
+    })
+})
 
 module.exports = router;
