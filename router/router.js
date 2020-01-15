@@ -15,14 +15,18 @@ const router = express.Router();
 
 // Creates a post using the information sent inside the request body.
 router.post('/', (req, res)=>{
+
+    // checking if we have title and contents
+    if(!req.body.title || !req.body.contents){
+      return  res.status(400).json(`{ errorMessage: "Please provide title and contents for the post." }`)
+    }
+    
+    // if everything pass then we insert
     DataBase.insert(req.body)
         .then(response =>{
-            if(!req.body.title && !req.body.contents){
-                res.status(400).json(`{ errorMessage: "Please provide title and contents for the post." }`)
-            }
-            else{
+                // create was successful
                 res.status(201).json(response)
-            }
+            
         })
         .catch(error =>{
             console.log(error)

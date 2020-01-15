@@ -11,13 +11,9 @@ const server = express();
 server.use(express.json());
 
 // handle requests to the root of the api, the / route
-// server.get('/', (req, res) =>{
-//     res.send("Hello from express")
-// })
-
-// server.post('/', (req, res) => {
-//     res.send("hello from post")
-// })
+server.get('/', (req, res) =>{
+    res.send("Hello from express")
+})
 
 // request to routes that begin with api/posts
 server.use('/api/posts', postRouter);
