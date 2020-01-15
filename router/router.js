@@ -9,9 +9,9 @@ const DataBase = require('../data/db.js')
 const router = express.Router();
 
 // checking if response is send once a get request is made
-router.get('/', (req, res) =>{
-    res.send('My life for Aiur')
-})
+// router.get('/', (req, res) =>{
+//     res.send('My life for Aiur')
+// })
 
 // Creates a post using the information sent inside the request body.
 router.post('/', (req, res)=>{
