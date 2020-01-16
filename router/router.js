@@ -48,29 +48,18 @@ router.get('/', (req,res) => {
     })
 })
 
-//  this is not working 3
+//  this is working 3; remember to pass a post_id: and give it the same id on Postman
 // Creates a comment for the post with the specified id using information sent inside of the `request body`.  
 router.post('/:id/comments', (req, res) =>{
 
-    // i need to check if the post with that id is not found
-    if(!req.body.id){
-        // return a 404 status(not found)
-        return res.status(404).json({ message: "The post with the specified ID does not exist." })
-
-    }
-
     // i need to add comments to the data base
-    const comment = req.body
+    const comment = req.body;
 
-    // if there is no text then return an error message and cancel request
-    if (!comment){
-       return  res.status(400).json(`{ errorMessage: "Please provide text for the comment." }`)
-    }
-
-    // if everything pass then comment is added to the specify id
+    console.log(comment);
+   
     DataBase.insertComment(comment)
         .then(response =>{
-            res.status(201).json(req.body)
+            res.status(201).json(response)
         })
 
         // in case of an error while saving the comment
@@ -80,31 +69,37 @@ router.post('/:id/comments', (req, res) =>{
         })  
 })  
 
+// this works without validaton, I need to provide validation
 // Returns the post object with the specified id. 
 router.get('/:id', (req, res) => {
 
-     // i need to check if the post with that id is not found
-     if(!req.body.id){
-        // return a 404 status(not found)
-        return res.status(404).json({ message: "The post with the specified ID does not exist." })
-    }
+   // finding the id
     DataBase.findById(req.params.id)
-    
+        
     .then(response => {
+        if(response){
             res.status(200).json(response);
+        }
+
+        else{
+            res.status(404).json({ message: "The post with the specified ID does not exist." })
+        }
+
     })
     .catch(error => {
         res.status(500).json({message: 'Error finding post'})
     })
 }) 
 
+// not working
 //  Returns an array of all the comment objects associated with the post with the specified id.                          
 router.get('/:id/comments', (req, res) => {
+
     DataBase.findCommentById(req.params.id)
     .then(response => {
-        console.log(hub)
+        console.log(response)
         if(response.length === 0){
-            res.status(404).json({message: 'Post not found'})
+            res.status(404).json({ message: "The post with the specified ID does not exist." })
         }else{
             res.status(200).json(response)
         }
@@ -134,6 +129,8 @@ router.delete('/:id', (req, res) => {
 // this works
 // Updates the post with the specified `id` using data from the `request body`. Returns the modified document, **NOT the original**.                                    
 router.put('/:id', (req, res) => {
+
+    // if title or contents are missing send a 400(Bad Request)
      if(!req.body.title || !req.body.contents){
         res.status(400).json({ errorMessage: "Please provide title or content for the post." })
     }
